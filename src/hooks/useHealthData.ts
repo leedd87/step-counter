@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Platform } from 'react-native';
+import { Platform, NativeEventEmitter, NativeModules } from 'react-native';
 import AppleHealthKit, {
   HealthInputOptions,
   HealthKitPermissions,
@@ -30,6 +30,15 @@ const useHealthData = () => {
 
   // HealthKit implementation
   const [hasPermissions, setHasPermission] = useState(false);
+
+  useEffect(() => {
+    new NativeEventEmitter(NativeModules.AppleHealthKit).addListener(
+      'healthKit:HeartRate:new',
+      async () => {
+        console.log('--> observer triggered');
+      }
+    );
+  });
 
   useEffect(() => {
     if (Platform.OS !== 'ios') {
