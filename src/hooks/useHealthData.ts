@@ -101,7 +101,7 @@ const useHealthData = () => {
         return;
       }
 
-      setHeartRate(results[0].value);
+      setHeartRate(results[0]?.value);
     });
   }, [hasPermissions]);
 
