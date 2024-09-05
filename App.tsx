@@ -1,15 +1,23 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import Value from './src/components/Value';
 import RingProgress from './src/components/RingProgress';
 import useHealthData from './src/hooks/useHealthData';
+import { useEffect, useState } from 'react';
 
 export default function App() {
   const { steps, distance, flights, restingHeartRate, heartRate } =
     useHealthData();
+  const [lastSteps, setLastSteps] = useState(0);
   console.log(
     `Steps: ${steps} | Distance: ${distance}m | Flights: ${flights} | RestingHeartRate: ${restingHeartRate} | heartRate: ${heartRate}`
   );
+  useEffect(() => {
+    if (steps - lastSteps >= 50) {
+      Alert.alert('Has caminado 50 pasos más!');
+      setLastSteps(steps); // Actualiza el valor de lastSteps
+    }
+  }, [steps, lastSteps]);
   return (
     <View style={styles.container}>
       <RingProgress progress={steps / 10000} />

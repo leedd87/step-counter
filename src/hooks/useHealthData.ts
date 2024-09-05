@@ -40,10 +40,77 @@ const useHealthData = () => {
     );
   });
 
+  // useEffect(() => {
+  //   if (Platform.OS !== 'ios') {
+  //     return;
+  //   }
+
+  //   AppleHealthKit.initHealthKit(permissions, (err) => {
+  //     if (err) {
+  //       console.log('Error getting permissions');
+  //       return;
+  //     }
+  //     setHasPermission(true);
+  //   });
+
+  //   if (!hasPermissions) {
+  //     return;
+  //   }
+
+  //   const options: HealthInputOptions = {
+  //     date: new Date().toISOString(),
+  //     startDate: new Date(2020, 1, 1).toISOString(),
+  //   };
+
+  //   AppleHealthKit.getStepCount(options, (err, results) => {
+  //     if (err) {
+  //       console.log('Error getting the steps');
+  //       return;
+  //     }
+  //     setSteps(results.value);
+  //   });
+
+  //   AppleHealthKit.getFlightsClimbed(options, (err, results) => {
+  //     if (err) {
+  //       console.log('Error getting the Flights Climbed:', err);
+  //       return;
+  //     }
+  //     setFlights(results.value);
+  //   });
+
+  //   AppleHealthKit.getDistanceWalkingRunning(options, (err, results) => {
+  //     if (err) {
+  //       console.log('Error getting the Distance:', err);
+  //       return;
+  //     }
+  //     setDistance(results.value);
+  //   });
+
+  //   AppleHealthKit.getRestingHeartRate(options, (err, results) => {
+  //     if (err) {
+  //       console.log('Error getting the heart rate', err);
+  //       return;
+  //     }
+
+  //     setRestingHeartRate(results.value);
+  //   });
+
+  //   AppleHealthKit.getHeartRateSamples(options, (err, results) => {
+  //     if (err) {
+  //       console.log('Error getting the heart rate', err);
+  //       return;
+  //     }
+
+  //     setHeartRate(results[0]?.value);
+  //   });
+  // }, [hasPermissions]);
+
   useEffect(() => {
     if (Platform.OS !== 'ios') {
       return;
     }
+
+    let intervalId: NodeJS.Timeout;
 
     AppleHealthKit.initHealthKit(permissions, (err) => {
       if (err) {
@@ -57,52 +124,63 @@ const useHealthData = () => {
       return;
     }
 
-    const options: HealthInputOptions = {
-      date: new Date().toISOString(),
-      startDate: new Date(2020, 1, 1).toISOString(),
+    const fetchData = () => {
+      console.log('SE DISPARO CADA 10 sg');
+      const options: HealthInputOptions = {
+        date: new Date().toISOString(),
+        startDate: new Date(2020, 1, 1).toISOString(),
+      };
+
+      AppleHealthKit.getStepCount(options, (err, results) => {
+        if (err) {
+          console.log('Error getting the steps');
+          return;
+        }
+        setSteps(results.value);
+      });
+
+      AppleHealthKit.getFlightsClimbed(options, (err, results) => {
+        if (err) {
+          console.log('Error getting the Flights Climbed:', err);
+          return;
+        }
+        setFlights(results.value);
+      });
+
+      AppleHealthKit.getDistanceWalkingRunning(options, (err, results) => {
+        if (err) {
+          console.log('Error getting the Distance:', err);
+          return;
+        }
+        setDistance(results.value);
+      });
+
+      AppleHealthKit.getRestingHeartRate(options, (err, results) => {
+        if (err) {
+          console.log('Error getting the heart rate', err);
+          return;
+        }
+
+        setRestingHeartRate(results.value);
+      });
+
+      AppleHealthKit.getHeartRateSamples(options, (err, results) => {
+        if (err) {
+          console.log('Error getting the heart rate', err);
+          return;
+        }
+
+        setHeartRate(results[0]?.value);
+      });
     };
+    fetchData();
+    // Ejecuta la función fetchData cada 10 segundos
+    intervalId = setInterval(fetchData, 10000);
 
-    AppleHealthKit.getStepCount(options, (err, results) => {
-      if (err) {
-        console.log('Error getting the steps');
-        return;
-      }
-      setSteps(results.value);
-    });
-
-    AppleHealthKit.getFlightsClimbed(options, (err, results) => {
-      if (err) {
-        console.log('Error getting the Flights Climbed:', err);
-        return;
-      }
-      setFlights(results.value);
-    });
-
-    AppleHealthKit.getDistanceWalkingRunning(options, (err, results) => {
-      if (err) {
-        console.log('Error getting the Distance:', err);
-        return;
-      }
-      setDistance(results.value);
-    });
-
-    AppleHealthKit.getRestingHeartRate(options, (err, results) => {
-      if (err) {
-        console.log('Error getting the heart rate', err);
-        return;
-      }
-
-      setRestingHeartRate(results.value);
-    });
-
-    AppleHealthKit.getHeartRateSamples(options, (err, results) => {
-      if (err) {
-        console.log('Error getting the heart rate', err);
-        return;
-      }
-
-      setHeartRate(results[0]?.value);
-    });
+    // Limpia el intervalo cuando se desmonta el componente
+    return () => {
+      clearInterval(intervalId);
+    };
   }, [hasPermissions]);
 
   return { steps, flights, distance, restingHeartRate, heartRate };
