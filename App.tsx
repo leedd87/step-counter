@@ -6,12 +6,10 @@ import useHealthData from './src/hooks/useHealthData';
 import { useEffect, useState } from 'react';
 
 export default function App() {
-  const { steps, distance, flights, restingHeartRate, heartRate } =
+  const { steps, distance, flights, restingHeartRate, heartRate, samples } =
     useHealthData();
   const [lastSteps, setLastSteps] = useState(0);
-  console.log(
-    `Steps: ${steps} | Distance: ${distance}m | Flights: ${flights} | RestingHeartRate: ${restingHeartRate} | heartRate: ${heartRate}`
-  );
+
   useEffect(() => {
     if (steps - lastSteps >= 50) {
       Alert.alert('Has caminado 50 pasos más!');
